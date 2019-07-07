@@ -75,6 +75,7 @@ class KGB:
         
         if self.debug:
             print('Question: {0}'.format(self.document.text))
+            
 
         
         edges = []

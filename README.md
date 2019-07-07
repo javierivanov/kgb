@@ -1,2 +1,3 @@
-# kgb
+# KGB
+
 Knowledge Graph Bot Framework
