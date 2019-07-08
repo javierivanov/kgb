@@ -6,15 +6,17 @@ import spacy
 
 class Sme(Plugin):
     def __init__(self):
+        super().__init__()
         self.inner_slots = []
         self.inner_rels = ['Level']
-        self.inner_attrs = ['Shift']
+        self.inner_attrs = ['Shift', 'Email']
         self.inner_actions = []
 
         self.sample_slots = {
         }
         self.sample_attrs = {
-            "Shift": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'node': 'Person', 'matching': REGEX_MATCH}
+            "Shift": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'node': 'Person', 'matching': REGEX_MATCH},
+            "Email": {'kind': SHAPE, 'source': GRAPH, 'retrieve': ALL, 'node': 'Person', 'matching': REGEX_MATCH}
         }
         self.sample_rels = {
             "Level": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'nodes': [('Component', 'Person')], 'matching': EXACT_MATCH},
@@ -24,8 +26,9 @@ class Sme(Plugin):
             ENTITY: {
                     },
             ATTR: {
-                "Shift": ['time zone', 'timezone', 'shift']
+                "Shift": ['time zone', 'timezone', 'shift'],
+                "Email": ['email', 'mail', 'e-mail']
                   },
             REL: {"Level": ['knowledge', 'level'], "SME": ['Subject Matter Expert'],}
         }
-        super().__init__()
+        

@@ -1,11 +1,12 @@
 from plugins.plugin import Plugin
-from plugins.constants import *
+from plugins.constants import TEXT, GRAPH, ALL, EXACT_MATCH, REGEX_MATCH, SHAPE, ENTITY, ATTR, REL, SOME
 from spacy.matcher import Matcher, PhraseMatcher
 from py2neo import Graph
 import spacy
 
 class Version(Plugin):
     def __init__(self):
+        super().__init__()
         
         self.inner_slots = ["Component", "Product"]
         self.inner_rels = ['Version']
@@ -14,7 +15,7 @@ class Version(Plugin):
 
         self.sample_slots = {
             "Product": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': EXACT_MATCH},
-            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'mathching': REGEX_MATCH},
+            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': REGEX_MATCH},
         }
         self.sample_attrs = {
             
@@ -32,4 +33,4 @@ class Version(Plugin):
                   },
             REL: {"Version": ['version', 'versions']}
         }
-        super().__init__()
+        

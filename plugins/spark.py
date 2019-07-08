@@ -6,7 +6,7 @@ import spacy
 
 class Spark(Plugin):
     def __init__(self):
-        
+        super().__init__()
         self.inner_slots = ["Component", "Product"]
         self.inner_rels = ['Version']
         self.inner_attrs = []
@@ -14,7 +14,7 @@ class Spark(Plugin):
 
         self.sample_slots = {
             "Product": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': EXACT_MATCH},
-            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'mathching': REGEX_MATCH},
+            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': REGEX_MATCH},
         }
         self.sample_attrs = {
             
@@ -32,4 +32,4 @@ class Spark(Plugin):
                   },
             REL: {"version": ['version', 'versions']}
         }
-        super().__init__()
+        

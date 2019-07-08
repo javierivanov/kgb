@@ -42,15 +42,17 @@ class KGB:
                             self.phrase_matcher_texts.add(key, None, *phrase_matcher_texts_dict[key])
                         loaded_plugins_str += [plugin]
                         self.loaded_plugins += [impl]
-                        # print(phrase_matcher_shapes_dict)
-                        # print(phrase_matcher_texts_dict)
+                        try:
+                            impl.run_extractor()
+                            print(item)
+                        except NotImplementedError as e:
+                            pass
                 except ModuleNotFoundError:
                     pass
                 except AttributeError:
                     pass
 
-        # print(mapper)
-        # print(slots)
+
         if self.debug:
             print("Loaded plugins", loaded_plugins_str)
             print("Mappings:", self.mapper)
@@ -68,7 +70,12 @@ class KGB:
         # displacy.render(document)
         
         self.root_str = list(document.sents)[0].root.text
-        
+        a=self.root_str 
+        if self.root_str not in self.actions:
+            for token in document:
+                if token.text.upper() in self.actions:
+                    self.root_str = token.text.upper()
+        print(a, self.root_str)
 
         self.document = self.nlp(text_)
         
@@ -269,7 +276,17 @@ class KGB:
         
         for idx, node_ in enumerate([node, inner_node]):
             if node_[0] != "<<Entity>>":
-                where_clause += ["n%d.name=~'(?i)%s'" % (idx, node_[1])]
+                ##Checking for synonyms
+                aux = []
+                for x in self.loaded_plugins:
+                    y=x.check_synonym(node_[1])
+                    if y is not None:
+                        aux += [y]
+                if len(aux) == 0:
+                    aux_name = node_[1]
+                else:
+                    aux_name = aux[0]
+                where_clause += ["n%d.name=~'(?i)%s'" % (idx, aux_name)]
             if node_ in self.child_attrs2.keys():
                 for child in self.child_attrs2[node_]:
                     if child[0].split("/")[1] == "Attr":
@@ -351,7 +368,19 @@ class KGB:
         where_clause = []
         if self.extracted_nodes[0][0] != "<<Entity>>":
             node_cypher = "n: %s" % self.extracted_nodes[0][0]
-            where_clause += ["n.name=~'(?i)%s'" % self.extracted_nodes[0][1]]
+            ##Checking synonyms
+            aux = []
+            for x in self.loaded_plugins:
+                y=x.check_synonym(self.extracted_nodes[0][1])
+                if y is not None:
+                    aux += [y]
+            
+            if len(aux) == 0:
+                aux_name = self.extracted_nodes[0][1]
+            else:
+                aux_name = aux[0]
+
+            where_clause += ["n.name=~'(?i)%s'" % aux_name]
         else:
             node_cypher = "n: %s" % self.mapper[self.extracted_nodes[0][1].lower()]
 
@@ -368,12 +397,17 @@ class KGB:
                 best_result = simil_score
                 rel_action = result["type(r)"]
         
+        if self.root_str in self.actions:
+            rel_action = self.root_str
+            best_result = 1
+
         if best_result < .5:
             rel_action = "r"
         else:
             rel_action = "r:" + rel_action
         if self.debug:
             print("rel_action", rel_action)
+
         added_node = None
         if rel_action != "r":
             for res in self.graph.run("match (%s)-[%s]-(d) return distinct labels(d)" % (node_cypher, rel_action)):
@@ -525,9 +559,11 @@ if __name__ == "__main__":
     graph = Graph(password="admin")
     engine = KGB(nlp, graph, True)
 
-    docs = [nlp("command to list kafka topic"),
-    nlp("how to list kafka topic"),
-    nlp("what is the command to list kafka")
+    docs = [
+        nlp("list kafka topics"),
+        nlp("command to list kafka topic"),
+        nlp("how to list kafka topic"),
+        nlp("what is the command to list kafka")
     ]
     for doc in docs:
         print("#"*60)

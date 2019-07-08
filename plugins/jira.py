@@ -6,6 +6,7 @@ import spacy
 
 class Jira(Plugin):
     def __init__(self):
+        super().__init__()
         
         self.inner_slots = ["Component", "Jira", "Person"]
         self.inner_rels = ['Version']
@@ -14,7 +15,7 @@ class Jira(Plugin):
 
         self.sample_slots = {
             "Person": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': REGEX_MATCH},
-            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'mathching': REGEX_MATCH},
+            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': REGEX_MATCH},
             "Jira": {'kind': SHAPE, 'source': GRAPH, 'retrieve': SOME, 'matching': EXACT_MATCH}
         }
         self.sample_attrs = {
@@ -36,6 +37,6 @@ class Jira(Plugin):
                   },
             REL: {"Version": ['version', 'versions']}
         }
-        super().__init__()
+        
     
     

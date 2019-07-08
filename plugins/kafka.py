@@ -6,6 +6,7 @@ import spacy
 
 class Kafka(Plugin):
     def __init__(self):
+        super().__init__()
         
         self.inner_slots = ["Component", "Element"]
         self.inner_rels = ['Command']
@@ -13,8 +14,8 @@ class Kafka(Plugin):
         self.inner_actions = ['LIST']
 
         self.sample_slots = {
-            "Element": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': EXACT_MATCH},
-            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'mathching': REGEX_MATCH},
+            "Element": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': SYNONYM_MATCH, 'synonyms': {'topic': ['topics', 'topic']}},
+            "Component": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': REGEX_MATCH},
         }
         self.sample_attrs = {
             
@@ -22,6 +23,7 @@ class Kafka(Plugin):
         self.sample_rels = {
             "Command": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'nodes': [('Component', 'Element')], 'matching': REGEX_MATCH},
         }
+
 
         self.sample_entities = {
             ENTITY: {
@@ -32,7 +34,7 @@ class Kafka(Plugin):
                   },
             REL: {"Command": ["command", "commands"]}
         }
-        super().__init__()
+        
 
     def run_extractor(self):
         query = '''merge (c: Component {name:'Kafka'})

@@ -35,4 +35,5 @@ def handle_incoming_event(json, methods=['GET', 'POST']):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    print("System ready")
+    socketio.run(app)

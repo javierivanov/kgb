@@ -8,6 +8,15 @@ class Plugin:
     def __init__(self):
         self.slots = [ENTITY, REL, ATTR]
         self.debug = False
+        self.sample_slots = {}
+        self.sample_entities = {}
+        self.sample_rels = {}
+        self.inner_slots = {}
+        self.inner_rels = {}
+        self.inner_attrs = {}
+        self.inner_actions = {}
+        self.sample_attrs = {}
+
     def set_connectors(self, graph, nlp):
         self.graph = graph
         self.nlp = nlp
@@ -24,6 +33,9 @@ class Plugin:
 
         action_definitions += [x for x in self.inner_actions if x not in action_definitions]
         slot_definitions += [x for x in self.slots if x not in slot_definitions]
+        
+        
+
 
         for elem in self.sample_entities:
             for key in self.sample_entities[elem]:
@@ -49,6 +61,7 @@ class Plugin:
                     entities_ += [self.nlp(val)]
             phrase_match_texts[slot_definitions.index(u_key)+1] = entities_
 
+
         for slot in self.sample_slots:
             if self.sample_slots[slot]['source'] == GRAPH:
                 cypher_query = "MATCH (n: %s)" % slot
@@ -65,7 +78,11 @@ class Plugin:
             slot_ = slot_definitions.index(slot)+1
             # slot_ = slot
             if self.sample_slots[slot]['kind'] == TEXT:
+                if self.sample_slots[slot]['matching'] == SYNONYM_MATCH:
+                    for synonym in self.sample_slots[slot]['synonyms']:
+                        slots_ += [self.nlp(x) for x in self.sample_slots[slot]['synonyms'][synonym]]
                 phrase_match_texts[slot_] = slots_
+
             elif self.sample_slots[slot]['kind'] == SHAPE:
                 phrase_match_shapes[slot_] = slots_
 
@@ -78,7 +95,7 @@ class Plugin:
                     cypher_query += "n.%s LIMIT %s" % (attr.lower(), SOME_LIMIT)
                 elif self.sample_attrs[attr]['retrieve'] == ALL:
                     cypher_query += " RETURN DISTINCT n.%s" % attr.lower()
-                attrs_ = [self.nlp(result['n.%s' % attr.lower()]) for result in self.graph.run(cypher_query)]
+                attrs_ = [self.nlp(result['n.%s' % attr.lower()]) for result in self.graph.run(cypher_query) if result['n.%s' % attr.lower()] is not None]
                 if self.debug:
                     print(attr, cypher_query, attrs_)
             elif self.sample_attrs[attr]['source'] == LIST:
@@ -122,4 +139,13 @@ class Plugin:
     
     def run_extractor(self):
         raise NotImplementedError("")
-        
+    
+    def check_synonym(self, token):
+        for slot in self.sample_slots:
+            if self.sample_slots[slot]['matching'] == SYNONYM_MATCH:
+                for synonym in self.sample_slots[slot]['synonyms']:
+                    print(synonym, token)
+                    if token in self.sample_slots[slot]['synonyms'][synonym]:
+                        return synonym
+        return None
+    
