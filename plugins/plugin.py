@@ -105,6 +105,9 @@ class Plugin:
             # attr_ = attr+"/Attr"
             if self.sample_attrs[attr]['kind'] == TEXT:
                 phrase_match_texts[attr_] = attrs_
+                if self.sample_attrs[attr]['matching'] == SYNONYM_MATCH:
+                    for synonym in self.sample_attrs[attr]['synonyms']:
+                        attrs_ += [self.nlp(x) for x in self.sample_attrs[attr]['synonyms'][synonym]]
             elif self.sample_attrs[attr]['kind'] == SHAPE:
                 phrase_match_shapes[attr_] = attrs_
 
@@ -140,12 +143,18 @@ class Plugin:
     def run_extractor(self):
         raise NotImplementedError("")
     
-    def check_synonym(self, token):
-        for slot in self.sample_slots:
-            if self.sample_slots[slot]['matching'] == SYNONYM_MATCH:
-                for synonym in self.sample_slots[slot]['synonyms']:
-                    print(synonym, token)
-                    if token in self.sample_slots[slot]['synonyms'][synonym]:
-                        return synonym
+    def check_synonym(self, token, kind=ENTITY):
+        if kind == ENTITY:
+            for slot in self.sample_slots:
+                if self.sample_slots[slot]['matching'] == SYNONYM_MATCH:
+                    for synonym in self.sample_slots[slot]['synonyms']:
+                        if token in self.sample_slots[slot]['synonyms'][synonym]:
+                            return synonym
+        if kind == ATTR:
+            for attr in self.sample_attrs:
+                if self.sample_attrs[attr]['matching'] == SYNONYM_MATCH:
+                    for synonym in self.sample_attrs[attr]['synonyms']:
+                        if token in self.sample_attrs[attr]['synonyms'][synonym]:
+                            return synonym
         return None
     

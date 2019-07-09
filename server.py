@@ -30,7 +30,7 @@ def handle_connected(message, methods=['GET']):
 def handle_incoming_event(json, methods=['GET', 'POST']):
     print('received event: ' + str(json))
     json = engine.parse(nlp(json['message']))
-    print(json)
+    # print(json)
     socketio.emit('response', json)
 
 

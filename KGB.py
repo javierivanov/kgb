@@ -44,8 +44,7 @@ class KGB:
                         self.loaded_plugins += [impl]
                         try:
                             impl.run_extractor()
-                            print(item)
-                        except NotImplementedError as e:
+                        except NotImplementedError:
                             pass
                 except ModuleNotFoundError:
                     pass
@@ -364,14 +363,13 @@ class KGB:
         
         node_cypher = ""
 
-
         where_clause = []
         if self.extracted_nodes[0][0] != "<<Entity>>":
             node_cypher = "n: %s" % self.extracted_nodes[0][0]
             ##Checking synonyms
             aux = []
             for x in self.loaded_plugins:
-                y=x.check_synonym(self.extracted_nodes[0][1])
+                y = x.check_synonym(self.extracted_nodes[0][1])
                 if y is not None:
                     aux += [y]
             
@@ -417,14 +415,24 @@ class KGB:
                     added_node = ":%s" % res['labels(d)'][0]
 
 
-
         if self.extracted_nodes[0] in self.child_attrs2:
             for attr in self.child_attrs2[self.extracted_nodes[0]]:
                 attr_ = attr[0].split("/")[0].lower()
                 val_ = attr[1]
 
                 if attr[0].split("/")[1] == 'Attr':
-                    where_clause += ['n.%s=~"(?i)%s"' % (attr_, val_)]
+                    aux = []
+                    for x in self.loaded_plugins:
+                        y=x.check_synonym(val_, ATTR)
+                        if y is not None:
+                            aux += [y]
+                    
+                    if len(aux) == 0:
+                        aux_name = val_
+                    else:
+                        aux_name = aux[0]
+
+                    where_clause += ['n.%s=~"(?i)%s"' % (attr_, aux_name)]
                 if attr[0].split("/")[1] == 'Rel':
                     out_ = []
                     for i in self.graph.run("match (%s)-[r]-() return distinct keys(r)" % (node_cypher)):
@@ -448,7 +456,8 @@ class KGB:
         results_output = []
         for ret in self.graph.run("match (%s)-[%s]-(d%s) %s return distinct n, r, d" % (node_cypher, rel_action, node_type, where_clause)):
             if self.debug:
-                print(ret, results_output)
+                # print(ret, results_output)
+                pass
             result_output = {}
             if added_node is not None:
                 result_output[node_type[1:]] = ret['d']['name']

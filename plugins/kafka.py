@@ -24,6 +24,10 @@ class Kafka(Plugin):
             "Command": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'nodes': [('Component', 'Element')], 'matching': REGEX_MATCH},
         }
 
+        self.sample_actions = {
+            "LIST" : {'synonyms': ['show']}
+        }
+
 
         self.sample_entities = {
             ENTITY: {
