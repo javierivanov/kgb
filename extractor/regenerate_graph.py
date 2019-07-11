@@ -12,8 +12,8 @@ match (n) delete n
 '''
 ,
 '''CREATE (jira:Jira {name:'HBASE-4321', status:"Open", priority:"High"}),
-		(person1:Person {name:"Elvis Tek"}),
-        (person2:Person {name:"Jack Daniels"}),
+		(person1:Person {name:"person one"}),
+        (person2:Person {name:"person two"}),
         (component:Component {name:"HBase"}),
         (product:Product {name:"HDP"}),
         (jira)-[:AFFECTS {version_component:"2.0.2"}]->(component),
@@ -22,8 +22,8 @@ match (n) delete n
         (component)-[:PART_OF {version_component: "2.0.2", version_product:"3.1.0"}]->(product)
 '''
 ,
-'''merge (person1:Person {name:"Elvis Tek"})
-merge (person2:Person {name:"Jack Daniels"})
+'''merge (person1:Person {name:"person one"})
+merge (person2:Person {name:"person two"})
 merge (component:Component {name:"Spark"})
 merge (product:Product {name:"HDP"})
 merge (jira:Jira {name:'SPARK-12345', status:"Open", priority:"Low"})
@@ -50,7 +50,7 @@ create (c:Component {name: "Ranger"}),
         (p:Product {name:"HDF"}),
         (c)-[:PART_OF {version_component:"1.2.0", version_product:"3.4.0"}]->(p)
 ''',
-'''merge (p: Person {name: "Elvis Tek"})
+'''merge (p: Person {name: "person one"})
 merge (c: Component {name: "Spark"})
 merge (p)-[:KNOWS {level_component: "SME"}]->(c)'''
 ]

@@ -569,13 +569,15 @@ if __name__ == "__main__":
     engine = KGB(nlp, graph, True)
 
     docs = [
-        nlp("list kafka topics"),
-        nlp("command to list kafka topic"),
-        nlp("how to list kafka topic"),
-        nlp("what is the command to list kafka")
+        nlp("how to produce kafka topics on version 1.0.0"),
+        # nlp("list kafka topics"),
+        # nlp("command to list kafka topic"),
+        # nlp("how to list kafka topic"),
+        # nlp("what is the command to list kafka")
     ]
     for doc in docs:
         print("#"*60)
+        displacy.serve(doc)
         res = engine.parse(doc)
         print("#"*60)
         print(res)

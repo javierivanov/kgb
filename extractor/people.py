@@ -33,7 +33,7 @@ for product in product_list:
     for person, shift, email in persons:
         query  = ' merge (p: Person {name: "%s", shift: "%s", email: "%s"})' % (person, shift, email)
         query += ' merge (c: Component {name: "%s"})' % product
-        query += ' merge (p)-[:KNOWS]->(c)'
+        query += ' merge (p)-[r:KNOWS]->(c)'
         print(query)
         graph.run(query)
 

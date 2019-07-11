@@ -11,7 +11,7 @@ class Kafka(Plugin):
         self.inner_slots = ["Component", "Element"]
         self.inner_rels = ['Command']
         self.inner_attrs = ['']
-        self.inner_actions = ['LIST']
+        self.inner_actions = ['LIST', 'CREATE']
 
         self.sample_slots = {
             "Element": {'kind': TEXT, 'source': GRAPH, 'retrieve': ALL, 'matching': SYNONYM_MATCH, 'synonyms': {'topic': ['topics', 'topic']}},
@@ -41,11 +41,35 @@ class Kafka(Plugin):
         
 
     def run_extractor(self):
-        query = '''merge (c: Component {name:'Kafka'})
+        query =[ '''merge (c: Component {name:'Kafka'})
         merge (e: Element {name: 'Topic'})
         create (c)-[:LIST {command_component: "$KAFKA_HOME/bin/kafka-topics.sh --zookeeper $ZK_HOSTS --list"}]->(e)
+        ''',
         '''
-        self.graph.run(query)
+        merge (c: Component {name:'Kafka'})
+        merge (e: Element {name: 'Topic'})
+        create (c)-[:CREATE {command_component: "$KAFKA_HOME/bin/kafka-topics.sh --zookeeper $ZK_HOSTS --create --topic $TOPIC_NAME --replication-factor 3 --partitions 3"}]->(e)
+        ''',
+        '''
+        merge (c: Component {name:'Kafka'})
+        merge (e: Element {name: 'Topic'})
+        create (c)-[:PRODUCE {command_component: "bin/kafka-console-producer.sh --broker-list <BrokerHosts>:<BrokerPort> --topic <topicName> --security-protocol <SASL_PLAINTEXT/PLAINTEXT/SSL/SASL_SSL>", version_component: "0.10.0"}]->(e)
+        ''',
+        '''
+        merge (c: Component {name:'Kafka'})
+        merge (e: Element {name: 'Topic'})
+        create (c)-[:PRODUCE {command_component: "bin/kafka-console-producer.sh --broker-list <BrokerHosts>:<BrokerPort> --topic <topicName> --producer-property security.protocol <SASL_PLAINTEXT/PLAINTEXT/SSL/SASL_SSL>", version_component: "1.0.0"}]->(e)
+        create (c)-[:CONSUME {command_component: "bin/kafka-console-consumer.sh --bootstrap-server <BrokerHosts>:<BrokerPort> --topic <topicName> --security-protocol <SASL_PLAINTEXT/PLAINTEXT/SSL/SASL_SSL> --from-beginning", version_component: "1.0.0"}]->(e)
+        ''',
+        '''
+        merge (c: Component {name:'Kafka'})
+        merge (e: Element {name: 'Topic'})
+        create (c)-[:PRODUCE {command_component: "bin/kafka-console-producer.sh --broker-list <BrokerHosts>:<BrokerPort> --topic <topicName> --producer-property security.protocol <SASL_PLAINTEXT/PLAINTEXT/SSL/SASL_SSL>", version_component: "1.0.0"}]->(e)
+        create (c)-[:CONSUME {command_component: "bin/kafka-console-consumer.sh --bootstrap-server <BrokerHosts>:<BrokerPort> --topic <topicName> --consumer-property security.protocol <SASL_PLAINTEXT/PLAINTEXT/SSL/SASL_SSL> --from-beginning", version_component: "1.0.0"}]->(e)
+        '''
+        ]
+        for q in query:
+            self.graph.run(q)
 
         #How to list{Action} kafka(Component) topics(Element)
         #Component - List - Element
